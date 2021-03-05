@@ -23,8 +23,8 @@ PASS_DB = '633fdcec'
 conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
 
 
-def abrirDB():
-    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
+def abrirDB(self):
+    self.conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
 
 
 def fecharDB():
@@ -38,7 +38,7 @@ atexit.register(fecharDB)  # sempre que detectar que o terminal foi fechado, ele
 
 @app.route('/adjetivos/all', methods=['GET'])
 def getAllAdjetivos():
-    abrirDB()
+    abrirDB(conn)
     if conn.is_connected():
         adjetivos = []
         cursor = conn.cursor()
@@ -55,7 +55,7 @@ def getAllAdjetivos():
 
 @app.route('/teste', methods=['GET'])
 def testeSQL():
-    abrirDB()
+    abrirDB(conn)
     if conn.is_connected():
         cursor = conn.cursor()
         cursor.execute("SELECT VERSION()")
@@ -65,7 +65,7 @@ def testeSQL():
 
 
 def main():
-    abrirDB()
+    abrirDB(conn)
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
 
