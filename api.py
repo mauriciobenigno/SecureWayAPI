@@ -19,6 +19,11 @@ NAME_DB = 'heroku_22222dd8dc7c8d4'
 USER_DB = 'b99517f5d775e7'
 PASS_DB = '633fdcec'
 
+
+# Limite GPS
+
+LIMITE_GPS = 25
+
 # Conexão com o SQL
 conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
 
@@ -69,6 +74,30 @@ def getAllZonas():
         return jsonify(adjetivos), 200
 
 
+@app.route('/zonas/regiao', methods=['POST'])
+def getZonasByLocation():
+    print(request.json)
+    dataFromApp = request.json
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
+    if conn.is_connected():
+        zonas = []
+        cursor = conn.cursor()
+
+        queryInsert = """ 
+        SELECT id_zona,cordenada_x,cordenada_y, densidade, 
+            (6371 * acos( cos( radians({}) ) * cos( radians( cordenada_x ) ) * cos( radians( cordenada_y ) - radians({}) ) + sin( radians({}) ) * sin( radians(cordenada_x) ) ) ) distancia
+        FROM sw_zona HAVING distancia < {} order by distancia
+        """.format(dataFromApp['latitude'],dataFromApp['longitude'],dataFromApp['latitude'], LIMITE_GPS)
+        cursor.execute(queryInsert)
+
+        row = cursor.fetchone()
+        while row is not None:
+            data = {'id_zona': row[0], 'cordenada_x': row[1], 'cordenada_y': row[2], 'densidade': row[3]}
+            zonas.append(data)
+            row = cursor.fetchone()
+        conn.close()
+        return jsonify(zonas), 201
+
 @app.route('/zonas/newpost', methods=['POST'])
 def addZona():
     print(request.json)
@@ -76,13 +105,13 @@ def addZona():
     conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
     if conn.is_connected():
         cursor = conn.cursor()
-        queryUpdate = """ 
+        queryInsert = """ 
         INSERT INTO 
             sw_zona(cordenada_x, cordenada_y, densidade)
         VALUES 
             ({}, {}, {})
         """.format(dataFromApp['cordenada_x'],dataFromApp['cordenada_y'],dataFromApp['densidade'])
-        cursor.execute(queryUpdate)
+        cursor.execute(queryInsert)
         dataFromApp['id_zona'] = cursor.lastrowid
         conn.commit()
         return jsonify(dataFromApp), 201
