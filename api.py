@@ -34,7 +34,7 @@ def fecharDB():
 atexit.register(fecharDB)  # sempre que detectar que o terminal foi fechado, ele executa
 
 
-#######################   GET  #########################
+#######################   ADJETIVOS  #########################
 
 @app.route('/adjetivos/all', methods=['GET'])
 def getAllAdjetivos():
@@ -51,6 +51,7 @@ def getAllAdjetivos():
         conn.close()
         return jsonify(adjetivos), 200
 
+#######################   ZONAS  #########################
 
 @app.route('/zonas/all', methods=['GET'])
 def getAllZonas():
@@ -68,6 +69,25 @@ def getAllZonas():
         return jsonify(adjetivos), 200
 
 
+@app.route('/zonas/newpost', methods=['POST'])
+def addZona():
+    print(request.json)
+    dataFromApp = request.json
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
+    if conn.is_connected():
+        cursor = conn.cursor()
+        queryUpdate = """ 
+        INSERT INTO 
+            sw_zona(cordenada_x, cordenada_y, densidade)
+        VALUES 
+            ({}, {}, {})
+        """.format(dataFromApp['cordenada_x'],dataFromApp['cordenada_y'],dataFromApp['densidade'])
+        cursor.execute(queryUpdate)
+        dataFromApp['id_zona'] = cursor.lastrowid
+        conn.commit()
+        return jsonify(dataFromApp), 201
+
+#######################   REPORT  #########################
 
 @app.route('/report/all', methods=['GET'])
 def getAllReports():
