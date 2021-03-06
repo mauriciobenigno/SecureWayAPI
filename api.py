@@ -55,7 +55,7 @@ def getAllAdjetivos():
 
 @app.route('/teste', methods=['GET'])
 def testeSQL():
-    abrirDB(conn)
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
     if conn.is_connected():
         cursor = conn.cursor()
         cursor.execute("SELECT VERSION()")
