@@ -38,7 +38,7 @@ atexit.register(fecharDB)  # sempre que detectar que o terminal foi fechado, ele
 
 @app.route('/adjetivos/all', methods=['GET'])
 def getAllAdjetivos():
-    abrirDB(conn)
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
     if conn.is_connected():
         adjetivos = []
         cursor = conn.cursor()
