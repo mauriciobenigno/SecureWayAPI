@@ -51,6 +51,39 @@ def getAllAdjetivos():
         conn.close()
         return jsonify(adjetivos), 200
 
+
+@app.route('/zonas/all', methods=['GET'])
+def getAllZonas():
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
+    if conn.is_connected():
+        adjetivos = []
+        cursor = conn.cursor()
+        cursor.execute('SELECT id_zona, cordenada_x, cordenada_y, densidade FROM sw_zona')
+        row = cursor.fetchone()
+        while row is not None:
+            data = {'id_zona': row[0], 'cordenada_x': row[1], 'cordenada_y': row[2], 'densidade': row[3]}
+            adjetivos.append(data)
+            row = cursor.fetchone()
+        conn.close()
+        return jsonify(adjetivos), 200
+
+
+
+@app.route('/report/all', methods=['GET'])
+def getAllReports():
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
+    if conn.is_connected():
+        reports = []
+        cursor = conn.cursor()
+        cursor.execute('SELECT id_report, id_zona, numero, data_report, densidade, observacao FROM sw_report')
+        row = cursor.fetchone()
+        while row is not None:
+            data = {'id_report': row[0], 'id_zona': row[1], 'numero': row[2], 'data_report': row[3], 'densidade': row[4], 'observacao': row[5]}
+            reports.append(data)
+            row = cursor.fetchone()
+        conn.close()
+        return jsonify(reports), 200
+
 ########### INIT E TESTE ##########
 
 @app.route('/teste', methods=['GET'])
