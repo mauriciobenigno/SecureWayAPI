@@ -185,7 +185,8 @@ def getAllReports():
 @app.route('/report/newreport', methods=['POST'])
 def addReport():
     print(request.json)
-    dataFromApp = request.json
+    return jsonify(request), 201
+    '''dataFromApp = request.json
     conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
     if conn.is_connected():
         cursor = conn.cursor()
@@ -198,7 +199,8 @@ def addReport():
         cursor.execute(queryInsert)
         dataFromApp['id_report'] = cursor.lastrowid
         conn.commit()
-        return jsonify(dataFromApp), 201
+        return jsonify(dataFromApp), 201'''
+
 
 ########### INIT E TESTE ##########
 
