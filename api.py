@@ -217,7 +217,7 @@ def addReport():
                 sw_zona(coordenada_x, coordenada_y, densidade)
             VALUES 
                 ({}, {}, {})
-            """.format(local['coordenada_x'], local['coordenada_y'], 500)
+            """.format(local['latitude'], local['longitude'], 500)
             cursor.execute(queryInsert)
             idZona = cursor.lastrowid
             conn.commit()
@@ -227,6 +227,7 @@ def addReport():
             report['id_zona'] = zonaValida['id_zona']
 
         # Registrar o report
+        print(report)
         cursor = conn.cursor()
         queryInsert = """ 
                 INSERT INTO 
