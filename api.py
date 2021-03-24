@@ -185,22 +185,63 @@ def getAllReports():
 @app.route('/report/newreport', methods=['POST'])
 def addReport():
     print(request.json)
-    return jsonify(request), 201
-    '''dataFromApp = request.json
+    dataFromApp = request.json
+
+    # montar objetos
+    report = dataFromApp['first']
+    local = dataFromApp['second']
+
     conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
     if conn.is_connected():
+        # Validar a zona
+        zonas = []
+        cursor = conn.cursor()
+
+        queryInsert = """ 
+                SELECT id_zona,coordenada_x,coordenada_y, densidade, 
+                    (6371 * acos( cos( radians({}) ) * cos( radians( coordenada_x ) ) * cos( radians( coordenada_y ) - radians({}) ) + sin( radians({}) ) * sin( radians(coordenada_x) ) ) ) distancia
+                FROM sw_zona HAVING distancia < {} order by distancia limit 1
+                """.format(local['latitude'], local['longitude'], local['latitude'], LIMITE_GPS)
+        cursor.execute(queryInsert)
+
+        row = cursor.fetchone()
+        while row is not None:
+            data = {'id_zona': row[0], 'coordenada_x': row[1], 'coordenada_y': row[2], 'densidade': row[3]}
+            zonas.append(data)
+            row = cursor.fetchone()
+
+        if zonas[0] is None:
+            cursor = conn.cursor()
+            queryInsert = """ 
+            INSERT INTO 
+                sw_zona(coordenada_x, coordenada_y, densidade)
+            VALUES 
+                ({}, {}, {})
+            """.format(local['coordenada_x'], local['coordenada_y'], 500)
+            cursor.execute(queryInsert)
+            idZona = cursor.lastrowid
+            conn.commit()
+            report['id_zona'] = idZona
+        else:
+            zonaValida = zonas[0]
+            report['id_zona'] = zonaValida['id_zona']
+
+        # Registrar o report
         cursor = conn.cursor()
         queryInsert = """ 
-        INSERT INTO 
-            sw_report(numero, data_report, densidade)
-        VALUES 
-            ({}, {}, {})
-        """.format(dataFromApp['numero'],dataFromApp['data_report'],dataFromApp['densidade'])
+                INSERT INTO 
+                    sw_report(id_zona, numero, data_report, densidade)
+                VALUES 
+                    ({},{}, {}, {})
+                """.format(report['id_zona'], report['numero'], report['data_report'], report['densidade'])
         cursor.execute(queryInsert)
-        dataFromApp['id_report'] = cursor.lastrowid
+        report['id_report'] = cursor.lastrowid
         conn.commit()
-        return jsonify(dataFromApp), 201'''
 
+        # fecha conexão com o banco de dados
+        conn.close()
+    print(report)
+    return jsonify(report), 201
 
 ########### INIT E TESTE ##########
 
