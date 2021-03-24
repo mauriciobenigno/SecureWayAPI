@@ -252,7 +252,7 @@ def addReport():
 
         row = cursor.fetchone()
         while row is not None:
-            zonaValida['id_zona'] = row[1]
+            zonaValida['densidade'] = row[1]
             row = cursor.fetchone()
 
         # fecha conexão com o banco de dados
