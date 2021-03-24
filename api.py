@@ -244,8 +244,12 @@ def addReport():
 
         # fecha conexão com o banco de dados
         conn.close()
+
     print((report, zonaValida))
-    return jsonify((report, zonaValida)), 201
+    dataFromApp['first'] = report
+    dataFromApp['second'] = zonaValida
+
+    return jsonify(dataFromApp), 201
 
 ########### INIT E TESTE ##########
 
