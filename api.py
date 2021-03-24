@@ -242,6 +242,19 @@ def addReport():
         report['id_report'] = cursor.lastrowid
         conn.commit()
 
+        # Calcula a densidade da Zona
+        cursor = conn.cursor()
+        queryDensidade = """
+            select distinct sw_zona.id_zona, AVG(sw_report.densidade) densidade_zona,sum(sw_report.densidade) total, count(sw_report.id_report) quantidade  from sw_zona
+            inner join sw_report on sw_report.id_zona = sw_zona.id_zona
+            where sw_zona.id_zona = {} """.format(zonaValida['id_zona'])
+        cursor.execute(queryDensidade)
+
+        row = cursor.fetchone()
+        while row is not None:
+            zonaValida['id_zona'] = row[1]
+            row = cursor.fetchone()
+
         # fecha conexão com o banco de dados
         conn.close()
 
