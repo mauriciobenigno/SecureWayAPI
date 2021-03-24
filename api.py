@@ -223,8 +223,6 @@ def addReport():
             conn.commit()
             report['id_zona'] = idZona
         else:
-            print(len(zonas))
-            print(zonas)
             zonaValida = zonas[0]
             report['id_zona'] = zonaValida['id_zona']
 
@@ -235,7 +233,7 @@ def addReport():
                 INSERT INTO 
                     sw_report(id_zona, numero, data_report, densidade)
                 VALUES 
-                    ({},{}, {}, {})
+                    ({}, {}, '{}', {})
                 """.format(report['id_zona'], report['numero'], report['data_report'], report['densidade'])
         cursor.execute(queryInsert)
         report['id_report'] = cursor.lastrowid
