@@ -210,7 +210,7 @@ def addReport():
             zonas.append(data)
             row = cursor.fetchone()
 
-        if zonas is None:
+        if  len([zonas]) <= 0:
             cursor = conn.cursor()
             queryInsert = """ 
             INSERT INTO 
@@ -223,7 +223,7 @@ def addReport():
             conn.commit()
             report['id_zona'] = idZona
         else:
-            print(zonas[0])
+            print(zonas)
             zonaValida = zonas[0]
             report['id_zona'] = zonaValida['id_zona']
 
