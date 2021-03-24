@@ -64,10 +64,10 @@ def getAllZonas():
     if conn.is_connected():
         adjetivos = []
         cursor = conn.cursor()
-        cursor.execute('SELECT id_zona, cordenada_x, cordenada_y, densidade FROM sw_zona')
+        cursor.execute('SELECT id_zona, coordenada_x, coordenada_y, densidade FROM sw_zona')
         row = cursor.fetchone()
         while row is not None:
-            data = {'id_zona': row[0], 'cordenada_x': row[1], 'cordenada_y': row[2], 'densidade': row[3]}
+            data = {'id_zona': row[0], 'coordenada_x': row[1], 'coordenada_y': row[2], 'densidade': row[3]}
             adjetivos.append(data)
             row = cursor.fetchone()
         conn.close()
@@ -84,18 +84,67 @@ def getZonasByLocation():
         cursor = conn.cursor()
 
         queryInsert = """ 
-        SELECT id_zona,cordenada_x,cordenada_y, densidade, 
-            (6371 * acos( cos( radians({}) ) * cos( radians( cordenada_x ) ) * cos( radians( cordenada_y ) - radians({}) ) + sin( radians({}) ) * sin( radians(cordenada_x) ) ) ) distancia
+        SELECT id_zona,coordenada_x,coordenada_y, densidade, 
+            (6371 * acos( cos( radians({}) ) * cos( radians( coordenada_x ) ) * cos( radians( coordenada_y ) - radians({}) ) + sin( radians({}) ) * sin( radians(coordenada_x) ) ) ) distancia
         FROM sw_zona HAVING distancia < {} order by distancia
         """.format(dataFromApp['latitude'],dataFromApp['longitude'],dataFromApp['latitude'], LIMITE_GPS)
         cursor.execute(queryInsert)
 
         row = cursor.fetchone()
         while row is not None:
-            data = {'id_zona': row[0], 'cordenada_x': row[1], 'cordenada_y': row[2], 'densidade': row[3]}
+            data = {'id_zona': row[0], 'coordenada_x': row[1], 'coordenada_y': row[2], 'densidade': row[3]}
             zonas.append(data)
             row = cursor.fetchone()
         conn.close()
+        return jsonify(zonas), 201
+
+@app.route('/zonas/proxima', methods=['POST'])
+def getZonaByLocation():
+    print(request.json)
+    dataFromApp = request.json
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
+    if conn.is_connected():
+        zonas = []
+        cursor = conn.cursor()
+
+        queryInsert = """ 
+        SELECT id_zona,coordenada_x,coordenada_y, densidade, 
+            (6371 * acos( cos( radians({}) ) * cos( radians( coordenada_x ) ) * cos( radians( coordenada_y ) - radians({}) ) + sin( radians({}) ) * sin( radians(coordenada_x) ) ) ) distancia
+        FROM sw_zona HAVING distancia < {} order by distancia limit 1
+        """.format(dataFromApp['latitude'],dataFromApp['longitude'],dataFromApp['latitude'], LIMITE_GPS)
+        cursor.execute(queryInsert)
+
+        row = cursor.fetchone()
+        while row is not None:
+            data = {'id_zona': row[0], 'coordenada_x': row[1], 'coordenada_y': row[2], 'densidade': row[3]}
+            zonas.append(data)
+            row = cursor.fetchone()
+
+        if zonas[0] is None:
+            cursor = conn.cursor()
+            queryInsert = """ 
+            INSERT INTO 
+                sw_zona(coordenada_x, coordenada_y, densidade)
+            VALUES 
+                ({}, {}, {})
+            """.format(dataFromApp['coordenada_x'], dataFromApp['coordenada_y'], 500)
+            cursor.execute(queryInsert)
+            idZona = cursor.lastrowid
+            conn.commit()
+
+            cursor = conn.cursor()
+            queryInsert = """ 
+            SELECT id_zona,coordenada_x,coordenada_y, densidade
+            FROM sw_zona WHERE id_zona = {}
+            """.format(idZona)
+            cursor.execute(queryInsert)
+
+            row = cursor.fetchone()
+            while row is not None:
+                data = {'id_zona': row[0], 'coordenada_x': row[1], 'coordenada_y': row[2], 'densidade': row[3]}
+                zonas.append(data)
+                row = cursor.fetchone()
+
         return jsonify(zonas), 201
 
 @app.route('/zonas/newpost', methods=['POST'])
@@ -107,10 +156,10 @@ def addZona():
         cursor = conn.cursor()
         queryInsert = """ 
         INSERT INTO 
-            sw_zona(cordenada_x, cordenada_y, densidade)
+            sw_zona(coordenada_x, coordenada_y, densidade)
         VALUES 
             ({}, {}, {})
-        """.format(dataFromApp['cordenada_x'],dataFromApp['cordenada_y'],dataFromApp['densidade'])
+        """.format(dataFromApp['coordenada_x'],dataFromApp['coordenada_y'],dataFromApp['densidade'])
         cursor.execute(queryInsert)
         dataFromApp['id_zona'] = cursor.lastrowid
         conn.commit()
@@ -132,6 +181,24 @@ def getAllReports():
             row = cursor.fetchone()
         conn.close()
         return jsonify(reports), 200
+
+@app.route('/report/newreport', methods=['POST'])
+def addReport():
+    print(request.json)
+    dataFromApp = request.json
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
+    if conn.is_connected():
+        cursor = conn.cursor()
+        queryInsert = """ 
+        INSERT INTO 
+            sw_report(numero, data_report, densidade)
+        VALUES 
+            ({}, {}, {})
+        """.format(dataFromApp['numero'],dataFromApp['data_report'],dataFromApp['densidade'])
+        cursor.execute(queryInsert)
+        dataFromApp['id_report'] = cursor.lastrowid
+        conn.commit()
+        return jsonify(dataFromApp), 201
 
 ########### INIT E TESTE ##########
 
