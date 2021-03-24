@@ -190,11 +190,13 @@ def addReport():
     # montar objetos
     report = dataFromApp['first']
     local = dataFromApp['second']
+    zonaValida = None
 
     conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
     if conn.is_connected():
         # Validar a zona
         zonas = []
+
         cursor = conn.cursor()
 
         queryInsert = """ 
@@ -217,11 +219,12 @@ def addReport():
                 sw_zona(coordenada_x, coordenada_y, densidade)
             VALUES 
                 ({}, {}, {})
-            """.format(local['latitude'], local['longitude'], 500)
+            """.format(local['latitude'], local['longitude'], report['densidade'])
             cursor.execute(queryInsert)
             idZona = cursor.lastrowid
             conn.commit()
             report['id_zona'] = idZona
+            zonaValida = {'id_zona': idZona, 'coordenada_x': local['latitude'], 'coordenada_y':  local['longitude'], 'densidade': report['densidade']}
         else:
             zonaValida = zonas[0]
             report['id_zona'] = zonaValida['id_zona']
@@ -241,8 +244,8 @@ def addReport():
 
         # fecha conexão com o banco de dados
         conn.close()
-    print(report)
-    return jsonify(report), 201
+    print((report, zonaValida))
+    return jsonify([(report, zonaValida)]), 201
 
 ########### INIT E TESTE ##########
 
