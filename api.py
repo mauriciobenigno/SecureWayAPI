@@ -210,7 +210,7 @@ def addReport():
             zonas.append(data)
             row = cursor.fetchone()
 
-        if zonas[0] is None:
+        if zonas is None:
             cursor = conn.cursor()
             queryInsert = """ 
             INSERT INTO 
