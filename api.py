@@ -223,6 +223,7 @@ def addReport():
             conn.commit()
             report['id_zona'] = idZona
         else:
+            print(len([zonas]))
             print(zonas)
             zonaValida = zonas[0]
             report['id_zona'] = zonaValida['id_zona']
