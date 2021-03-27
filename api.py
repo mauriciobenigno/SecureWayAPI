@@ -274,9 +274,6 @@ def updateReport():
     # montar objeto
     report = dataFromApp
     zonaValida = None
-    dataForResponse = []
-    dataForResponse['first'] = None
-    dataForResponse['second'] = None
 
     conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
     if conn.is_connected():
