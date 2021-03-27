@@ -289,7 +289,6 @@ def updateReport():
                 WHERE id_report = {} AND id_zona = {} AND numero = {}
                 """.format(report['densidade'], report['observacao'], report['id_report'], report['id_zona'], report['numero'])
         cursor.execute(queryInsert)
-        report['id_report'] = cursor.lastrowid
         conn.commit()
 
         # Calcula a densidade da Zona
