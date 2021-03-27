@@ -264,6 +264,57 @@ def addReport():
 
     return jsonify(dataFromApp), 201
 
+
+
+@app.route('/report/update', methods=['POST'])
+def updateReport():
+    print(request.json)
+    dataFromApp = request.json
+
+    # montar objeto
+    report = dataFromApp
+    zonaValida = None
+    dataForResponse = []
+    dataForResponse['first'] = None
+    dataForResponse['second'] = None
+
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
+    if conn.is_connected():
+        # Atualizar o report
+        print(report)
+        cursor = conn.cursor()
+        queryInsert = """ 
+                UPDATE 
+                    sw_report
+                SET
+                    densidade = {},
+                    observacao = {}
+                WHERE id_report = {} AND id_zona = {} AND numero = {}
+                """.format(report['densidade'], report['observacao'], report['id_report'], report['id_zona'], report['numero'])
+        cursor.execute(queryInsert)
+        report['id_report'] = cursor.lastrowid
+        conn.commit()
+
+        # Calcula a densidade da Zona
+        cursor = conn.cursor()
+        queryDensidade = """
+            select distinct sw_zona.id_zona,sw_zona.coordenada_x, sw_zona.coordenada_y , AVG(sw_report.densidade) densidade_zona from sw_zona
+            inner join sw_report on sw_report.id_zona = sw_zona.id_zona
+            where sw_zona.id_zona = {} """.format(report['id_zona'])
+        cursor.execute(queryDensidade)
+
+        row = cursor.fetchone()
+        while row is not None:
+            zonaValida = {'id_zona': row[0], 'coordenada_x': row[1], 'coordenada_y': row[2], 'densidade': row[3]}
+            row = cursor.fetchone()
+
+        # fecha conexão com o banco de dados
+        conn.close()
+    resposta = {'first': report, 'second': zonaValida}
+    print(resposta)
+
+    return jsonify(resposta), 201
+
 ########### INIT E TESTE ##########
 
 @app.route('/teste', methods=['GET'])
