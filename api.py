@@ -245,7 +245,7 @@ def addReport():
         # Calcula a densidade da Zona
         cursor = conn.cursor()
         queryDensidade = """
-            select distinct sw_zona.id_zona, AVG(sw_report.densidade) densidade_zona,sum(sw_report.densidade) total, count(sw_report.id_report) quantidade  from sw_zona
+            select distinct sw_zona.id_zona, TRUNCATE(AVG(sw_report.densidade),2) densidade_zona,sum(sw_report.densidade) total, count(sw_report.id_report) quantidade  from sw_zona
             inner join sw_report on sw_report.id_zona = sw_zona.id_zona
             where sw_zona.id_zona = {} """.format(zonaValida['id_zona'])
         cursor.execute(queryDensidade)
@@ -294,7 +294,7 @@ def updateReport():
         # Calcula a densidade da Zona
         cursor = conn.cursor()
         queryDensidade = """
-            select distinct sw_zona.id_zona,sw_zona.coordenada_x, sw_zona.coordenada_y , AVG(sw_report.densidade) densidade_zona from sw_zona
+            select distinct sw_zona.id_zona,sw_zona.coordenada_x, sw_zona.coordenada_y ,TRUNCATE(AVG(sw_report.densidade), 2) densidade_zona from sw_zona
             inner join sw_report on sw_report.id_zona = sw_zona.id_zona
             where sw_zona.id_zona = {} """.format(report['id_zona'])
         cursor.execute(queryDensidade)
