@@ -145,7 +145,7 @@ def getZonaByLocation():
                 zonas.append(data)
                 row = cursor.fetchone()
 
-        return jsonify(zonas), 201
+        return jsonify(zonas[0]), 201
 
 @app.route('/zonas/newpost', methods=['POST'])
 def addZona():
