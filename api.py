@@ -22,7 +22,7 @@ PASS_DB = '633fdcec'
 
 # Limite GPS
 
-LIMITE_GPS = 25
+LIMITE_GPS = 0.2
 
 # Conexão com o SQL
 conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
