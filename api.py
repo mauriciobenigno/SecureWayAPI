@@ -325,7 +325,7 @@ def updateReport():
 
     return jsonify(resposta), 201
 
-@app.route('/report/delete', methods=['GET', 'DELETE'])
+@app.route('/report/delete', methods=['POST'])
 def deleteReport():
     print(request.json)
     dataFromApp = request.json
