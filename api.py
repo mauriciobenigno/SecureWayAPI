@@ -325,6 +325,37 @@ def updateReport():
 
     return jsonify(resposta), 201
 
+@app.route('/report/delete', methods=['GET', 'DELETE'])
+def deleteReport():
+    print(request.json)
+    dataFromApp = request.json
+
+    # montar objeto
+    report = dataFromApp
+
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
+    if conn.is_connected():
+        # Atualizar o report
+        print(report)
+        cursor = conn.cursor()
+        queryDelete = """ 
+                DELETE FROM sw_report
+                WHERE numero = {} AND id_report = {} AND id_zona = {}
+                """.format(report['numero'], report['id_report'], report['id_zona'])
+        cursor.execute(queryDelete)
+        conn.commit()
+
+        if cursor.rowcount > 0:
+            # foram deletados registros
+            return jsonify(True), 201
+        else:
+            # Não foram deletados registros
+            return jsonify(False), 201
+
+    # SQL Não está disponível
+    return jsonify(False), 201
+
+
 ########### INIT E TESTE ##########
 
 @app.route('/teste', methods=['GET'])
