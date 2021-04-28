@@ -145,6 +145,20 @@ def getZonaByLocation():
                 zonas.append(data)
                 row = cursor.fetchone()
 
+        # Calcula a densidade da Zona
+        cursor = conn.cursor()
+        zonas[0]
+        queryDensidade = """
+            select distinct sw_zona.id_zona, TRUNCATE(AVG(sw_report.densidade),2) densidade_zona,sum(sw_report.densidade) total, count(sw_report.id_report) quantidade  from sw_zona
+            inner join sw_report on sw_report.id_zona = sw_zona.id_zona
+            where sw_zona.id_zona = {} """.format(zonas[0]['id_zona'])
+        cursor.execute(queryDensidade)
+
+        row = cursor.fetchone()
+        while row is not None:
+            zonas[0]['densidade'] = row[1]
+            row = cursor.fetchone()
+
         return jsonify(zonas[0]), 201
 
 @app.route('/zonas/newpost', methods=['POST'])
