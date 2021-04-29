@@ -261,7 +261,7 @@ def addReport():
                 INSERT INTO 
                     sw_report(id_zona, numero, data_report, densidade, observacao)
                 VALUES 
-                    ({}, {}, '{}', {}, {})
+                    ({}, {}, '{}', {}, '{}')
                 """.format(report['id_zona'], report['numero'], report['data_report'], report['densidade'], report['observacao'])
         cursor.execute(queryInsert)
         report['id_report'] = cursor.lastrowid
