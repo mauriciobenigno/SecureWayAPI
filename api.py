@@ -259,10 +259,10 @@ def addReport():
         cursor = conn.cursor()
         queryInsert = """ 
                 INSERT INTO 
-                    sw_report(id_zona, numero, data_report, densidade)
+                    sw_report(id_zona, numero, data_report, densidade, observacao)
                 VALUES 
-                    ({}, {}, '{}', {})
-                """.format(report['id_zona'], report['numero'], report['data_report'], report['densidade'])
+                    ({}, {}, '{}', {}, {})
+                """.format(report['id_zona'], report['numero'], report['data_report'], report['densidade'], report['observacao'])
         cursor.execute(queryInsert)
         report['id_report'] = cursor.lastrowid
         conn.commit()
@@ -353,7 +353,7 @@ def getAllReportsByUser():
             row = cursor.fetchone()
         conn.close()
         return jsonify(reports), 200
- 
+
 @app.route('/report/delete', methods=['POST'])
 def deleteReport():
     print(request.json)
