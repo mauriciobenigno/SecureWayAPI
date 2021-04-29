@@ -353,7 +353,7 @@ def getAllReportsByUser():
             row = cursor.fetchone()
         conn.close()
         return jsonify(reports), 200
-
+ 
 @app.route('/report/delete', methods=['POST'])
 def deleteReport():
     print(request.json)
