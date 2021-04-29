@@ -64,7 +64,19 @@ def getAllZonas():
     if conn.is_connected():
         adjetivos = []
         cursor = conn.cursor()
-        cursor.execute('SELECT id_zona, coordenada_x, coordenada_y, densidade FROM sw_zona')
+        queryDensidade = """
+            select 
+                distinct sw_report.id_zona, 
+                sw_zona.coordenada_x,
+                sw_zona.coordenada_y,
+                TRUNCATE(AVG(sw_report.densidade),2) densidade_zona, 
+                sum(sw_report.densidade) total, 
+                count(sw_report.id_report) quantidade 
+            from sw_report 
+            inner join sw_zona on sw_zona.id_zona = sw_report.id_zona 
+            group by id_zona
+            """
+        cursor.execute(queryDensidade)
         row = cursor.fetchone()
         while row is not None:
             data = {'id_zona': row[0], 'coordenada_x': row[1], 'coordenada_y': row[2], 'densidade': row[3]}
@@ -147,7 +159,6 @@ def getZonaByLocation():
 
         # Calcula a densidade da Zona
         cursor = conn.cursor()
-        zonas[0]
         queryDensidade = """
             select distinct sw_zona.id_zona, TRUNCATE(AVG(sw_report.densidade),2) densidade_zona,sum(sw_report.densidade) total, count(sw_report.id_report) quantidade  from sw_zona
             inner join sw_report on sw_report.id_zona = sw_zona.id_zona
@@ -324,6 +335,24 @@ def updateReport():
     print(resposta)
 
     return jsonify(resposta), 201
+
+@app.route('/report/user', methods=['POST'])
+def getAllReportsByUser():
+    print(request.json)
+    dataFromApp = request.json
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
+    if conn.is_connected():
+        reports = []
+        cursor = conn.cursor()
+        query = """SELECT id_report, id_zona, numero, data_report, densidade, observacao FROM sw_report WHERE numero = {}""".format(dataFromApp)
+        cursor.execute(query)
+        row = cursor.fetchone()
+        while row is not None:
+            data = {'id_report': row[0], 'id_zona': row[1], 'numero': row[2], 'data_report': row[3], 'densidade': row[4], 'observacao': row[5]}
+            reports.append(data)
+            row = cursor.fetchone()
+        conn.close()
+        return jsonify(reports), 200
 
 @app.route('/report/delete', methods=['POST'])
 def deleteReport():
