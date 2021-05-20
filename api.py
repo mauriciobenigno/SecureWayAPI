@@ -391,16 +391,18 @@ def deleteReport():
 def getAllFaq():
     conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
     if conn.is_connected():
-        reports = []
+        faqList = []
         cursor = conn.cursor()
         cursor.execute('SELECT id_faq, titulo, descricao, possui_video, link FROM sw_faq')
         row = cursor.fetchone()
         while row is not None:
             data = {'id_faq': row[0], 'titulo': row[1], 'descricao': row[2], 'possui_video': row[3], 'link': row[4]}
-            reports.append(data)
+            faqList.append(data)
             row = cursor.fetchone()
         conn.close()
-        return jsonify(reports), 200
+
+        print(faqList)
+        return jsonify(faqList), 200
 
 
 ########### INIT E TESTE ##########
