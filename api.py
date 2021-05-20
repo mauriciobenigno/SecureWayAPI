@@ -385,6 +385,24 @@ def deleteReport():
     return jsonify(False), 201
 
 
+#######################   FAQ  #########################
+
+@app.route('/faq/all', methods=['GET'])
+def getAllReports():
+    conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
+    if conn.is_connected():
+        reports = []
+        cursor = conn.cursor()
+        cursor.execute('SELECT id_faq, titulo, descricao, possui_video, link FROM sw_faq')
+        row = cursor.fetchone()
+        while row is not None:
+            data = {'id_faq': row[0], 'titulo': row[1], 'descricao': row[2], 'possui_video': row[3], 'link': row[4]}
+            reports.append(data)
+            row = cursor.fetchone()
+        conn.close()
+        return jsonify(reports), 200
+
+
 ########### INIT E TESTE ##########
 
 @app.route('/teste', methods=['GET'])
