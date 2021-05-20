@@ -388,7 +388,7 @@ def deleteReport():
 #######################   FAQ  #########################
 
 @app.route('/faq/all', methods=['GET'])
-def getAllReports():
+def getAllFaq():
     conn = mysql.connector.connect(host=HOST_DB, database=NAME_DB, user=USER_DB, password=PASS_DB)
     if conn.is_connected():
         reports = []
